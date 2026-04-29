@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,11 +8,26 @@ from app.providers import FixtureLegalResearchProvider
 from app.router import classify_question
 from app.schemas import AskRequest, AskResponse
 
+
+def get_allowed_origins() -> list[str]:
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5179",
+        "http://127.0.0.1:5179",
+    ]
+    frontend_origin = os.environ.get("FRONTEND_ORIGIN", "").strip().rstrip("/")
+    if frontend_origin:
+        origins.append(frontend_origin)
+    return origins
+
+
 app = FastAPI(title="법령나침반")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=get_allowed_origins(),
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1):(4\d{3}|5\d{3})",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
