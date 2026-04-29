@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { ResultView } from '../components/ResultView';
 
@@ -25,7 +25,7 @@ describe('ResultView', () => {
       sources: [{ id: 's1', type: 'law', title: '식품위생법', citation: '관련 조문', url: null, confidence: 'direct' }],
       followUps: ['처분서 분석하기'],
       disclaimer: '법률 자문을 대체하지 않습니다.',
-    }} />);
+    }} onFollowUp={vi.fn()} />);
     expect(screen.getByText('감경 가능성이 있을 수 있습니다.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '관련 법령' })).toBeInTheDocument();
     expect(screen.getAllByText('식품위생법').length).toBeGreaterThan(0);

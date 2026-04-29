@@ -43,4 +43,39 @@ describe('App ask flow', () => {
     expect(screen.getByText('근거를 찾는 중입니다...')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('영업정지 감경 가능성이 있을 수 있습니다.')).toBeInTheDocument());
   });
+
+  it('submits a follow-up question and replaces the answer with the new result', async () => {
+    const followUpResponse = {
+      ...mockResponse,
+      answerId: 'follow-up-id',
+      summary: '처분서 내용을 기준으로 감경 사유를 먼저 확인해야 합니다.',
+      sections: [{ title: '처분서 체크포인트', items: ['위반 횟수', '처분 기간', '감경 사유'] }],
+      followUps: ['감경 사례만 찾아보기'],
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockResponse,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => followUpResponse,
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('질문'), { target: { value: '음식점 영업정지 줄일 수 있어?' } });
+    fireEvent.click(screen.getByText('근거 찾기'));
+    await waitFor(() => expect(screen.getByText('영업정지 감경 가능성이 있을 수 있습니다.')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: '처분서 분석하기' }));
+
+    expect(screen.getByText('근거를 찾는 중입니다...')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('처분서 내용을 기준으로 감경 사유를 먼저 확인해야 합니다.')).toBeInTheDocument());
+    expect(fetchMock).toHaveBeenLastCalledWith('/api/ask', expect.objectContaining({
+      body: JSON.stringify({ question: '처분서 분석하기', mode: 'auto' }),
+    }));
+  });
 });

@@ -53,7 +53,7 @@ export default function App() {
 
       {status === 'loading' ? <p className="status">근거를 찾는 중입니다...</p> : null}
       {status === 'error' ? <p className="status error">{error}</p> : null}
-      {result ? <ResultView result={result} /> : null}
+      {result ? <ResultView result={result} onFollowUp={submitQuestion} disabled={status === 'loading'} /> : null}
     </main>
   );
 }

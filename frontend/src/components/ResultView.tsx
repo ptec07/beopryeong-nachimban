@@ -3,9 +3,11 @@ import { SourceList } from './SourceList';
 
 interface ResultViewProps {
   result: AskResponse;
+  onFollowUp: (question: string) => void;
+  disabled?: boolean;
 }
 
-export function ResultView({ result }: ResultViewProps) {
+export function ResultView({ result, onFollowUp, disabled = false }: ResultViewProps) {
   return (
     <article className="result-view">
       <section className="card summary-card">
@@ -34,7 +36,9 @@ export function ResultView({ result }: ResultViewProps) {
         <h2>후속 질문</h2>
         <div>
           {result.followUps.map((followUp) => (
-            <button type="button" key={followUp}>{followUp}</button>
+            <button type="button" key={followUp} onClick={() => onFollowUp(followUp)} disabled={disabled}>
+              {followUp}
+            </button>
           ))}
         </div>
       </section>
